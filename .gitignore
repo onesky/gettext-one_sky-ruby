@@ -1,0 +1,5 @@
+pkg/*
+rdoc/*
+*.gem
+.bundle
+spec/po/**/from_one_sky.po

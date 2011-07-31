@@ -1,0 +1,81 @@
+= gettext OneSky
+
+
+OneSky[link:http://www.oneskyapp.com] is a new service that lets developers reach a global audience by easily enabling them to translate their websites and applications to different languages through the help of the community.
+
+This gem integrates OneSky and gettext. At its most basic, it allows you to take the phrases defined under gettext .pot file and upload it to OneSky[link:http://www.oneskyapp.com] for translation by the community. Afterwards, you can download available translations and save them as .po files.
+
+This gem is supporting Ruby projects using gettext gem to handle localization. If you are using i18n, checkout i18n-one_sky gem
+
+
+= Using inside a Rails project
+
+1. Generate OneSky API key
+2. Generate .pot
+3. Upload .pot to OneSky
+4. Download translated files .po from OneSky
+5. Overwrite old .po files
+6. Generate .mo files
+
+--- Generate OneSky API key 
+If you haven't done so yet, log in to your account at OneSky[link:http://www.oneskyapp.com] and create a new project for this Rails app. Also, find the API key and secret which you will supply here:
+
+  rails generate one_sky:init my_api_key my_api_secret my_project
+
+This will create the configuration file config/one_sky.yml.
+
+--- Generate .pot
+Use the gettext rake task
+
+  rake updatepo
+
+--- Upload .pot to OneSky
+So assuming that you already have your .pot file generated, it's time now to submit these phrases to OneSky:
+
+  rake one_sky:upload_phrases
+
+--- Download translated files .po from OneSky
+Then ask your translators to provide the translations using the OneSky[link:http://www.oneskyapp.com] website. When they're done and a few new languages are available, download them by:
+
+  rake one_sky:download_translations
+
+This will save the translations inside po/**/from_one_sky.po files. 
+
+--- Overwrite old .po files
+Overwrite your own .po files by the downloaded from_one_sky.po file.
+
+
+You now have more languages supported and it's just a matter of pushing again to production. You can call upload and download over and over as you incrementally internationalize your site.
+
+
+= Using outside Rails
+
+The steps are similar. Install it like any regular gem:
+
+  gem install gettext-one_sky
+
+And see the gettext-one_sky.rake and GetText::OneSky::SimpleClient for the methods available in Ruby.
+
+
+= TODO
+* merge downloaded translation with .pot to generate the .po files
+* upload existing .po files to onesky service
+* handle textdomain.po
+
+
+= History
+
+See CHANGELOG[link:CHANGELOG.html]
+
+
+= Credits
+
+See CREDITS[link:CREDITS.html]
+
+
+= License
+
+Copyright 2010-2011 {OneSky, Inc.}[link:http://www.oneskyapp.com]
+
+Licensed under the {MIT License}[link:MIT-LICENSE.html].
+
