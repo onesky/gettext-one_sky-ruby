@@ -18,6 +18,7 @@ This gem is supporting Ruby projects using gettext gem to handle localization. I
 6. Generate .mo files
 
 --- Generate OneSky API key 
+
 If you haven't done so yet, log in to your account at OneSky[link:http://www.oneskyapp.com] and create a new project for this Rails app. Also, find the API key and secret which you will supply here:
 
   rails generate one_sky:init my_api_key my_api_secret my_project
@@ -25,16 +26,19 @@ If you haven't done so yet, log in to your account at OneSky[link:http://www.one
 This will create the configuration file config/one_sky.yml.
 
 --- Generate .pot
+
 Use the gettext rake task
 
   rake updatepo
 
 --- Upload .pot to OneSky
+
 So assuming that you already have your .pot file generated, it's time now to submit these phrases to OneSky:
 
   rake one_sky:upload_phrases
 
 --- Download translated files .po from OneSky
+
 Then ask your translators to provide the translations using the OneSky[link:http://www.oneskyapp.com] website. When they're done and a few new languages are available, download them by:
 
   rake one_sky:download_translations
@@ -42,6 +46,7 @@ Then ask your translators to provide the translations using the OneSky[link:http
 This will save the translations inside po/**/from_one_sky.po files. 
 
 --- Overwrite old .po files
+
 Overwrite your own .po files by the downloaded from_one_sky.po file.
 
 
