@@ -7,6 +7,7 @@ This gem integrates OneSky and gettext. At its most basic, it allows you to take
 
 This gem is supporting Ruby projects using gettext gem to handle localization. If you are using i18n, checkout i18n-one_sky gem
 
+
 = PO file support
 
 1. One layer of Context
@@ -18,9 +19,11 @@ This gem is supporting Ruby projects using gettext gem to handle localization. I
 
 Onesky currently only support 1 layer of context. That means only either "msgctxt" / "msgstr[0]" / "msgstr[1]" will be supported but not both.
 
+
 --- Text Domain as page
 
 Regarding the text domain, please use the file name as the page parameter. That means if the po file is abc.po, just add the string with parameter page=abc.po.
+
 
 --- Reserved Context: Singular, Plural and General
 
@@ -41,9 +44,11 @@ For the stuff without context, you may use "General" if there are other strings 
 1. Generate OneSky API key
 2. Generate .pot
 3. Upload .pot to OneSky
-4. Download translated files .po from OneSky
-5. Overwrite old .po files
-6. Generate .mo files
+4. Upload translated .po to OneSky
+5. Download latest translated files .po from OneSky
+6. Overwrite old .po files
+7. Generate .mo files
+
 
 --- Generate OneSky API key 
 
@@ -53,11 +58,13 @@ If you haven't done so yet, log in to your account at OneSky[link:http://www.one
 
 This will create the configuration file config/one_sky.yml.
 
+
 --- Generate .pot
 
 Use the gettext rake task
 
   rake updatepo
+
 
 --- Upload .pot to OneSky
 
@@ -65,13 +72,22 @@ So assuming that you already have your .pot file generated, it's time now to sub
 
   rake one_sky:upload_phrases
 
---- Download translated files .po from OneSky
+
+--- Upload translated .po to OneSky
+
+You may have some translated .po files in your repository. Upload them to Onesky:
+
+  rake one_sky:upload_translated_phrases
+
+
+--- Download latest translated files .po from OneSky
 
 Then ask your translators to provide the translations using the OneSky[link:http://www.oneskyapp.com] website. When they're done and a few new languages are available, download them by:
 
   rake one_sky:download_translations
 
 This will save the translations inside po/**/from_one_sky.po files. 
+
 
 --- Overwrite old .po files
 
@@ -91,6 +107,7 @@ And see the gettext-one_sky.rake and GetText::OneSky::SimpleClient for the metho
 
 
 = TODO
+
 * merge downloaded translation with .pot to generate the .po files
 * upload existing .po files to onesky service
 * handle textdomain.po
