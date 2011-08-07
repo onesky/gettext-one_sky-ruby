@@ -16,9 +16,16 @@ module GetTextOneSkySpecHelpers
 
   def create_simple_client_and_load
     client = create_simple_client
-    client.load_phrases([File.dirname(__FILE__), "po", "simple_client.pot"].join('/'))
-    # client.load_translations([File.dirname(__FILE__), "po", "en_US", "simple_client.po"].join('/'))
-    # client.load_translations([File.dirname(__FILE__), "po", "zh_CN", "simple_client.po"].join('/'))
+    
+    po_dir_path = [File.dirname(__FILE__), "po"].join("/")
+    Dir.glob("#{po_dir_path}/**/*.pot").each do |path|
+      client.load_phrases(path)
+    end
+    
+    Dir.glob("#{po_dir_path}/**/*.po").each do |path|
+      client.load_translations(path)
+    end
+    
     client
   end
   

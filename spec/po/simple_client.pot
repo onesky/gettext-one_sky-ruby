@@ -28,9 +28,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 
-#: msg with same name as context-ed msg
-msgid "Good to Enter"
-msgstr ""
+# #: msg with same name as context-ed msg
+# msgid "Good to Enter"
+# msgstr ""
 
 
 #: msg with context

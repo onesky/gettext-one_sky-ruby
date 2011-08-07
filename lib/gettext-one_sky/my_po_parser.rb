@@ -39,10 +39,10 @@ module GetText
             msg_singular, msg_plural = msg_id.split(/\000/)
             trans_singular, trans_plural = msg_str.split(/\000/)
 
-            slices << {:context => "Singular", :string => msg_singular, :string_key => msg_singular, :page => file_name, :translation => trans_singular || ""}
-            slices << {:context => "Plural",   :string => msg_plural,   :string_key => msg_plural,   :page => file_name, :translation => trans_plural || ""}
+            slices << {:context => "Singular", :string => msg_singular, :"string-key" => msg_singular, :page => file_name, :translation => trans_singular || ""}
+            slices << {:context => "Plural",   :string => msg_plural,   :"string-key" => msg_plural,   :page => file_name, :translation => trans_plural || ""}
           else
-            slices << components.merge(:string => msg_id, :string_key => msg_id, :translation => msg_str, :page => file_name)
+            slices << components.merge(:string => msg_id, :"string-key" => msg_id, :translation => msg_str, :page => file_name)
           end
         end
         

@@ -24,7 +24,7 @@ module GetText
     
 =end
     class SimpleClient
-      attr_reader :phrases_nested, :phrases_flat
+      attr_reader :phrases_nested, :phrases_flat, :translations_flat
       # The base OneSky project. Gives you low-level access to the API gem.
       attr_reader :project
 
@@ -38,29 +38,41 @@ module GetText
       # Parse and load phrases from .pot file.
       # If not a Rails project, manually supply the path where the .pot file located.
       def load_phrases(path=nil)
+        path ||= pot_path
         @phrases_flat = parse_phrase_file(path)
       end
       
-
+      def load_translations(path=nil)
+        path ||= po_dir_path
+        lang_code = File.dirname(path).split("/").last
+        
+        @translations_flat = Hash.new
+        @translations_flat[lang_code] = parse_phrase_file(path)
+      end
+      
       # Upload phrases to Onesky server
       def upload_phrases
         load_phrases unless @phrases_flat
 
         @project.input_bulk(@phrases_flat)
       end
-      
+
+      # Upload translated phrases to Onesky server      
+      def upload_translations
+        load_translations unless @translations_flat
+
+        @translations_flat.each_pair do |lang, values|
+          values.each do |value|
+            something = {:"string-key" => value[:"string-key"], :language => lang, :context => value[:context], :translation => value[:translation]}
+
+            @project.send(:post, "/string/translate", {:"string-key" => value[:"string-key"], :language => lang, :context => value[:context], :translation => value[:translation]})
+          end
+        end
+      end
 
       # Download all available translations from Onesky server and save them as *.po files.
       # Outside of Rails, manually supply the path where downloaded files should be saved.
       def download_translations(po_dir_path=nil, pot_file_path=nil)
-        if defined? Rails
-          po_dir_path ||= [Rails.root.to_s, "po"].join("/")
-          pot_file_path ||= Dir.glob(File.join(RAILS_ROOT, "/po/**/*.pot")).first
-        else
-          raise ArgumentError, "Please supply the po directory path and pot file path where locales are to be downloaded." unless po_dir_path && pot_file_path
-          po_dir_path = po_dir_path.chop if po_dir_path =~ /\/$/
-        end
-
         @translations = parse_project_output(@project.output)
 
         update_translation_files(po_dir_path, pot_file_path, @translations)
@@ -73,6 +85,23 @@ module GetText
           YAML.load_file([Rails.root.to_s, 'config', 'one_sky.yml'].join('/')).symbolize_keys
         else
           {:api_key => ENV["ONESKY_API_KEY"], :api_secret => ENV["ONESKY_API_SECRET"], :project => ENV["ONESKY_PROJECT"]}
+        end
+      end
+
+      def pot_file_path
+        if defined? Rails
+          pot_file_path ||= Dir.glob(File.join(RAILS_ROOT, "/po/**/*.pot")).first
+        else
+          raise ArgumentError, "Please supply the pot file path where locales are to be downloaded." unless pot_file_path
+        end
+      end
+      
+      def po_dir_path
+        if defined? Rails
+          po_dir_path ||= [Rails.root.to_s, "po"].join("/")
+        else
+          raise ArgumentError, "Please supply the po directory path where locales are to be downloaded." unless po_dir_path
+          po_dir_path = po_dir_path.chop if po_dir_path =~ /\/$/
         end
       end
       
