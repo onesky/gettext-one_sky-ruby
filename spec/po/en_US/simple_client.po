@@ -1,0 +1,53 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: sample_client 1.0.0\n"
+"POT-Creation-Date: 2011-07-30 23:34+0800\n"
+"PO-Revision-Date: 2011-07-30 22:48+0800\n"
+"Last-Translator: \n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+
+#: general msg
+msgid "Hello"
+msgstr "Updated Hello Plain"
+
+
+#: single and plural msg
+msgid "Stock"
+msgid_plural "Stocks"
+msgstr[0] "Updated Singular Stock"
+msgstr[1] "Updated Plural Stocks"
+
+
+# #: msg with same name as context-ed msg
+# msgid "Good to Enter"
+# msgstr "Updated Time to enter order"
+
+
+#: msg with context
+msgctxt "Long"
+msgid "Good to Enter"
+msgstr "Updated Expect it to raise. Time to enter order"
+
+
+#: msg with context
+msgctxt "Short"
+msgid "Good to Enter"
+msgstr "Updated Expect it to drop. Time to enter order"
+
+
+#: app/views/demo/index.rhtml:5
+msgctxt "Not Supporting multi level of context and plural"
+msgid "Should upload this phrase without context"
+msgid_plural "Should upload this phrase without context"
+msgstr[0] "Updated CONTEXT AND SING"
+msgstr[1] "Updated CONTEXT AND PLURAL"
