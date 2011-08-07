@@ -17,14 +17,7 @@ module GetTextOneSkySpecHelpers
   def create_simple_client_and_load
     client = create_simple_client
     
-    po_dir_path = [File.dirname(__FILE__), "po"].join("/")
-    Dir.glob("#{po_dir_path}/**/*.pot").each do |path|
-      client.load_phrases(path)
-    end
-    
-    Dir.glob("#{po_dir_path}/**/*.po").each do |path|
-      client.load_translations(path)
-    end
+    load_phrases(client)
     
     client
   end
@@ -43,6 +36,22 @@ module GetTextOneSkySpecHelpers
   end
 
   protected
+  
+  def load_phrases(client)
+    Dir.glob("#{po_dir_path}/**/*.pot").each do |file_path|
+      client.load_phrases(file_path)
+    end
+  end
+  
+  def load_translations(client)
+    Dir.glob("#{po_dir_path}/**/*.po").each do |file_path|
+      client.load_translations(file_path)
+    end
+  end
+  
+  def po_dir_path
+    [File.dirname(__FILE__), "po"].join("/")
+  end
   
   # hopefully not accidentally delete other real translation project
   def test_project_code

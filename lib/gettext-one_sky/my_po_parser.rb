@@ -13,17 +13,19 @@ module GetText
         @msgctxt = ""
       end
       
-      def parse_po_file(path)
+      def parse_po_file(path, lang_code=nil)
         gettext_formatted_messages = self.parse_file(path, GetText::RMsgMerge::PoData.new, false)
         
         page_name = File.basename(path).gsub(/.pot$/, '.po')
-        to_onesky_format(gettext_formatted_messages, page_name)
+        to_onesky_format(gettext_formatted_messages, page_name, lang_code)
       end
 
       protected
       
-      def to_onesky_format(messages, file_name)
+      def to_onesky_format(messages, file_name, lang_code=nil)
         slices = []
+        lang_options = Hash.new
+        lang_options[:language] = lang_code if lang_code
         
         messages.each_msgid do |full_msg_id|
           msg_id = full_msg_id
@@ -39,10 +41,10 @@ module GetText
             msg_singular, msg_plural = msg_id.split(/\000/)
             trans_singular, trans_plural = msg_str.split(/\000/)
 
-            slices << {:context => "Singular", :string => msg_singular, :"string-key" => msg_singular, :page => file_name, :translation => trans_singular || ""}
-            slices << {:context => "Plural",   :string => msg_plural,   :"string-key" => msg_plural,   :page => file_name, :translation => trans_plural || ""}
+            slices << {:context => "Singular", :string => msg_singular, :"string-key" => msg_singular, :page => file_name, :translation => trans_singular || ""}.merge(lang_options)
+            slices << {:context => "Plural",   :string => msg_plural,   :"string-key" => msg_plural,   :page => file_name, :translation => trans_plural || ""}.merge(lang_options)
           else
-            slices << components.merge(:string => msg_id, :"string-key" => msg_id, :translation => msg_str, :page => file_name)
+            slices << components.merge(:string => msg_id, :"string-key" => msg_id, :translation => msg_str, :page => file_name).merge(lang_options)
           end
         end
         
