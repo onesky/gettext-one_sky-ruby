@@ -1,35 +1,33 @@
-require 'gettext/tools/poparser'
-require 'gettext/tools/rmsgmerge'
+require 'gettext-one_sky/my_po_parser'
 
 module GetText
   module OneSky
-    # override to include blank trsanslation messages
-    class MyPoParser < GetText::PoParser
-      def on_message(msgid, msgstr)
-        @data[msgid] = msgstr
-        @data.set_comment(msgid, @comments.join("\n"))
-          
-        @comments.clear
-        @msgctxt = ""
-      end
-    end
+
+=begin
+  This class is the bridge between the OneSky service and the gettext file storgage.
+  It takes the phrases defined in gettext's default locale and uploads them to OneSky for translation.
+  Then it downloads available translations and saves them as .po files.
+  
+  A regular workflow would then look like:
+    initialize -> load_phrases -> upload_phrases -> download_translations
+
+  
+  * Initilaize *
+  
+  When you initialize a client inside a Rails project, 
+  it will take the OneSky configuration variables supplied when you called rails generate one_sky:init.
+  
+  When you use this client outside of Rails,
+  credentials are expected to come from environment variables: ONESKY_API_KEY, ONESKY_API_SECRET, ONESKY_PROJECT.
+  You can override these defaults by providing a hash of options:
+    {:api_key => ..., :api_secret => ..., :project => ...}
     
-    # This class is the bridge between the OneSky service and the gettext file storgage.
-    # It takes the phrases defined in gettext's default locale and uploads them to OneSky for translation.
-    # Then it downloads available translations and saves them as .po files.
-    # A regular workflow would then look like:
-    #   initialize -> load_phrases -> upload_phrases -> download_translations
+=end
     class SimpleClient
       attr_reader :phrases_nested, :phrases_flat
       # The base OneSky project. Gives you low-level access to the API gem.
       attr_reader :project
 
-      # When you initialize a client inside a Rails project, it will take the OneSky configuration variables supplied when you called rails generate one_sky:init.
-      # Outside of Rails, credentials are expected to come from environment variables: ONESKY_API_KEY, ONESKY_API_SECRET, ONESKY_PROJECT.
-      # You can override these defaults by providing a hash of options:
-      # * api_key
-      # * api_secret
-      # * project
       def initialize(options = {})
         options = default_options.merge!(options)
         @project = ::OneSky::Project.new(options[:api_key], options[:api_secret], options[:project])
@@ -37,26 +35,22 @@ module GetText
         @one_sky_languages = @project.languages
       end
 
-      # This will load the phrases defined for gettext's .pot file.
-      # If not a Rails project, manually supply the path where the gettext .pot file located.
+      # Parse and load phrases from .pot file.
+      # If not a Rails project, manually supply the path where the .pot file located.
       def load_phrases(path=nil)
-        phrases = parse_phrase_file(path)
-        
-        values = Hash.new
-        phrases.each_msgid do |id|
-            values[id] = phrases.msgstr(id) if !id.strip.empty?
-        end
-        @phrases_flat = values
+        @phrases_flat = parse_phrase_file(path)
       end
+      
 
-      # Once you've loaded the default locale's phrases, call this method to send them to OneSky for translation.
+      # Upload phrases to Onesky server
       def upload_phrases
         load_phrases unless @phrases_flat
 
-        @project.input_bulk(@phrases_flat.keys.map{|key| {:string => key}})
+        @project.input_bulk(@phrases_flat)
       end
+      
 
-      # When your translators are done, call this method to download all available translations and save them as *.po files.
+      # Download all available translations from Onesky server and save them as *.po files.
       # Outside of Rails, manually supply the path where downloaded files should be saved.
       def download_translations(po_dir_path=nil, pot_file_path=nil)
         if defined? Rails
@@ -144,7 +138,7 @@ module GetText
         end
         
         parser = GetText::OneSky::MyPoParser.new
-        parser.parse_file(path, GetText::RMsgMerge::PoData.new, false)
+        parser.parse_po_file(path)
       end
     end
   end

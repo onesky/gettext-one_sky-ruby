@@ -24,31 +24,31 @@ msgstr ""
 #: single and plural msg
 msgid "Stock"
 msgid_plural "Stocks"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Singular Stock"
+msgstr[1] "Plural Stocks"
 
 
-#: msg with same name as context-ed msg
-msgid "Good to Enter"
-msgstr ""
+# Assume this conflict would not happen
+# #: msg with same name as context-ed msg
+# msgid "Good to Enter"
+# msgstr "Time to enter order"
 
 
 #: msg with context
 msgctxt "Long"
 msgid "Good to Enter"
-msgstr ""
+msgstr "Expect it to raise. Time to enter order"
 
 
 #: msg with context
 msgctxt "Short"
 msgid "Good to Enter"
-msgstr ""
+msgstr "Expect it to drop. Time to enter order"
 
 
 #: app/views/demo/index.rhtml:5
 msgctxt "Not Supporting multi level of context and plural"
 msgid "Should upload this phrase without context"
 msgid_plural "Should upload this phrase without context"
-msgstr[0] ""
-msgstr[1] ""
-
+msgstr[0] "CONTEXT AND SING"
+msgstr[1] "CONTEXT AND PLURAL"

@@ -7,17 +7,46 @@ module GetTextOneSkySpecHelpers
   def create_simple_client
     raise "Please set environment variables: ONESKY_API_KEY, ONESKY_API_SECRET and ONESKY_SPEC_PROJ (default: gettextoneskyspec) before running spec." unless [ENV["ONESKY_API_KEY"], ENV["ONESKY_API_SECRET"]].all?
     GetText.locale = "en_US"
-    client = GetText::OneSky::SimpleClient.new(
-      :api_key => ENV["ONESKY_API_KEY"], 
-      :api_secret => ENV["ONESKY_API_SECRET"], 
-      :project => ENV["ONESKY_SPEC_PROJ"] || "gettextoneskyspec"
-    )
+    client = GetText::OneSky::SimpleClient.new(options)
+  end
+  
+  def create_simple_project
+    OneSky::Project.new(options[:api_key], options[:api_secret], options[:project])
   end
 
   def create_simple_client_and_load
     client = create_simple_client
     client.load_phrases([File.dirname(__FILE__), "po", "simple_client.pot"].join('/'))
-    # client.load_translations([File.dirname(__FILE__), "po", "en", "simple_client.po"].join('/'))
-    client 
-  end  
+    # client.load_translations([File.dirname(__FILE__), "po", "en_US", "simple_client.po"].join('/'))
+    # client.load_translations([File.dirname(__FILE__), "po", "zh_CN", "simple_client.po"].join('/'))
+    client
+  end
+  
+  def delete_onesky_project(project)
+    begin
+      project.send(:post, "/project/delete", {:project => test_project_code})
+    rescue RestClient::BadRequest
+      retry
+    rescue OneSky::ApiError
+    end
+  end
+  
+  def create_onesky_project(project)
+    project.send(:post, "/project/add", {:project => test_project_code, :type => "ruby", :"base-language-code" => "en_US"})
+  end
+
+  protected
+  
+  # hopefully not accidentally delete other real translation project
+  def test_project_code
+    "ONESKY_TEST_#{ENV["ONESKY_SPEC_PROJ"]}"
+  end
+  
+  def options
+    {
+      :api_key => ENV["ONESKY_API_KEY"], 
+      :api_secret => ENV["ONESKY_API_SECRET"], 
+      :project => test_project_code || "gettextoneskyspec"
+    }
+  end
 end
