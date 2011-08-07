@@ -7,6 +7,32 @@ This gem integrates OneSky and gettext. At its most basic, it allows you to take
 
 This gem is supporting Ruby projects using gettext gem to handle localization. If you are using i18n, checkout i18n-one_sky gem
 
+= PO file support
+
+1. One layer of Context
+2. Text Domain as page
+3. Reserved Context: Singular, Plural and General
+
+
+--- One layer of Context
+
+Onesky currently only support 1 layer of context. That means only either "msgctxt" / "msgstr[0]" / "msgstr[1]" will be supported but not both.
+
+--- Text Domain as page
+
+Regarding the text domain, please use the file name as the page parameter. That means if the po file is abc.po, just add the string with parameter page=abc.po.
+
+--- Reserved Context: Singular, Plural and General
+
+"Singular" / "Plural" / "General" are reserved context words.
+
+Onesky only support "Singular" and "Plural" for po files. That means only [0] and [1] are used.
+Which will return in result:
+> {"key": { "Singular": "Word", "Plural": "Words"}}
+
+For the stuff without context, you may use "General" if there are other strings with same string key but different context:
+> {"key_of_book": { "General": "book", "verb": "book", "noun": "book"}}
+
 
 = Using inside a Rails project
 
