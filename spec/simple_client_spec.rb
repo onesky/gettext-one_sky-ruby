@@ -20,12 +20,12 @@ describe "SimpleClient" do
   describe "#load_phrases" do
     it "should load flattened phrases." do
       expected = [{:string_key=>"Hello", :page=>"simple_client.po", :string=>"Hello", :translation=>""},
-       {:string_key=>"Stock", :page=>"simple_client.po", :string=>"Stock", :context=>"Singular", :trasnlation=>""},
+       {:string_key=>"Stock", :page=>"simple_client.po", :string=>"Stock", :context=>"Singular", :translation=>""},
        {:string_key=>"Stocks", :page=>"simple_client.po", :string=>"Stocks", :context=>"Plural", :translation=>""},
-       {:string_key=>"Good to Enter", :page=>"simple_client.po", :string=>"Good to Enter", :translation=>""},
+       {:string_key=>"Good to Enter", :page=>"simple_client.po", :string=>"Good to Enter", :context=>"General", :translation=>""},
        {:string_key=>"Good to Enter", :page=>"simple_client.po", :string=>"Good to Enter", :context=>"Long", :translation=>""},
        {:string_key=>"Good to Enter", :page=>"simple_client.po", :string=>"Good to Enter", :context=>"Short", :translation=>""},
-       {:string_key=>"Should upload this phrase without context", :page=>"simple_client.po", :string=>"Should upload this phrase without context", :context=>"Singular", :trasnlation=>""},
+       {:string_key=>"Should upload this phrase without context", :page=>"simple_client.po", :string=>"Should upload this phrase without context", :context=>"Singular", :translation=>""},
        {:string_key=>"Should upload this phrase without context", :page=>"simple_client.po", :string=>"Should upload this phrase without context", :context=>"Plural", :translation=>""}]
        
       @client.phrases_flat.should == expected

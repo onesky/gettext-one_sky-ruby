@@ -20,6 +20,8 @@ module GetText
         to_onesky_format(gettext_formatted_messages, page_name)
       end
 
+      protected
+      
       def to_onesky_format(messages, file_name)
         slices = []
         
@@ -37,17 +39,25 @@ module GetText
             msg_singular, msg_plural = msg_id.split(/\000/)
             trans_singular, trans_plural = msg_str.split(/\000/)
 
-            slices << {:context => "Singular", :string => msg_singular, :string_key => msg_singular, :page => file_name, :trasnlation => trans_singular || ""}
-            slices << {:context => "Plural", :string => msg_plural, :string_key => msg_plural, :page => file_name, :translation => trans_plural || ""}
+            slices << {:context => "Singular", :string => msg_singular, :string_key => msg_singular, :page => file_name, :translation => trans_singular || ""}
+            slices << {:context => "Plural",   :string => msg_plural,   :string_key => msg_plural,   :page => file_name, :translation => trans_plural || ""}
           else
-            components[:string]  = msg_id
-            components[:string_key]  = msg_id
-            components[:translation]  = msg_str
-            components[:page]  = file_name
-            slices << components
+            slices << components.merge(:string => msg_id, :string_key => msg_id, :translation => msg_str, :page => file_name)
           end
         end
+        
+        assign_general_context(slices)
+        
         slices
+      end
+      
+      def assign_general_context(slices)
+        general_slices = slices.select{|slice| !slice.has_key?(:context)}
+        general_slices.each do |general_slice|
+          if slices.select{|slice| slice[:string] == general_slice[:string] && slice.has_key?(:context)}.any?
+            general_slice[:context] = "General"
+          end
+        end
       end
     end
   end
