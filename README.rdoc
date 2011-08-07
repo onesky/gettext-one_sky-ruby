@@ -1,4 +1,4 @@
-= gettext OneSky
+= Gettext OneSky
 
 
 OneSky[link:http://www.oneskyapp.com] is a new service that lets developers reach a global audience by easily enabling them to translate their websites and applications to different languages through the help of the community.
@@ -28,10 +28,12 @@ Regarding the text domain, please use the file name as the page parameter. That 
 
 Onesky only support "Singular" and "Plural" for po files. That means only [0] and [1] are used.
 Which will return in result:
-> {"key": { "Singular": "Word", "Plural": "Words"}}
+
+  {"key": { "Singular": "Word", "Plural": "Words"}}
 
 For the stuff without context, you may use "General" if there are other strings with same string key but different context:
-> {"key_of_book": { "General": "book", "verb": "book", "noun": "book"}}
+
+  {"key_of_book": { "General": "book", "verb": "book", "noun": "book"}}
 
 
 = Using inside a Rails project
