@@ -28,9 +28,9 @@ msgstr[0] ""
 msgstr[1] ""
 
 
-# #: msg with same name as context-ed msg
-# msgid "Good to Enter"
-# msgstr ""
+#: msg with same name as context-ed msg
+msgid "Good to Enter"
+msgstr ""
 
 
 #: msg with context
@@ -47,8 +47,8 @@ msgstr ""
 
 #: app/views/demo/index.rhtml:5
 msgctxt "Not Supporting multi level of context and plural"
-msgid "Should upload this phrase without context"
-msgid_plural "Should upload this phrase without context"
+msgid "Should upload this singular phrase without context"
+msgid_plural "Should upload this plural phrase without context"
 msgstr[0] ""
 msgstr[1] ""
 

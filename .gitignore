@@ -2,4 +2,4 @@ pkg/*
 rdoc/*
 *.gem
 .bundle
-spec/po/**/from_one_sky.po
+spec/po/**/simple_client.po_from_one_sky

@@ -38,15 +38,11 @@ module GetTextOneSkySpecHelpers
   protected
   
   def load_phrases(client)
-    Dir.glob("#{po_dir_path}/**/*.pot").each do |file_path|
-      client.load_phrases(file_path)
-    end
+    client.load_phrases(po_dir_path)
   end
   
   def load_translations(client)
-    Dir.glob("#{po_dir_path}/**/*.po").each do |file_path|
-      client.load_translations(file_path)
-    end
+    client.load_translations(po_dir_path)
   end
   
   def po_dir_path

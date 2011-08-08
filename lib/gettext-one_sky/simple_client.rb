@@ -40,13 +40,8 @@ module GetText
       def load_phrases(path=nil)
         @phrases_flat = []
         
-        if defined? Rails
-          Dir.glob("#{po_dir_path}/**/*.pot").each do |file_path|
-            @phrases_flat += parse_phrase_file(file_path)
-          end
-        else
-          raise ArgumentError, "Please supply the .pot file path." unless path
-          @phrases_flat += parse_phrase_file(path)
+        Dir.glob("#{po_dir_path(path)}/**/*.pot").each do |file_path|
+          @phrases_flat += parse_phrase_file(file_path)
         end
       end
       
@@ -54,7 +49,7 @@ module GetText
       def upload_phrases(path = nil)
         load_phrases(path) unless @phrases_flat
 
-        @project.input_bulk(@phrases_flat)
+        @project.input_bulk(@phrases_flat, :page => @phrases_flat.first[:page])
       end
       
       # Parse and load translated phrases from .po files
@@ -62,23 +57,10 @@ module GetText
       def load_translations(path=nil)
         @translations_flat = []
         
-        if defined? Rails
-          Dir.glob("#{po_dir_path}/**/*.po").each do |file_path|
-            lang_code = File.dirname(file_path).split("/").last
-            
-            @translations_flat += parse_phrase_file(path, lang_code)
-            # @translations_flat += phrases.map do |phrase|
-            #   phrase.merge(:language => lang_code)
-            # end
-          end
-        else
-          raise ArgumentError, "Please supply the .po file path." unless path
-          lang_code = File.dirname(path).split("/").last
-            
-          @translations_flat += parse_phrase_file(path, lang_code)
-          # @translations_flat += phrases.map do |phrase|
-          #   phrase.merge(:language => lang_code)
-          # end
+        Dir.glob("#{po_dir_path(path)}/**/*.po").each do |file_path|
+          lang_code = File.dirname(file_path).split("/").last
+          
+          @translations_flat += parse_phrase_file(file_path, lang_code)
         end
       end
 
@@ -91,26 +73,19 @@ module GetText
         end
       end
 
+      # Download all available translations from Onesky server
+      def download_translations
+        @translations_from_onesky = @project.output
+      end
+      
       # Download all available translations from Onesky server and save them as *.po files.
-      # Outside of Rails, manually supply the path where downloaded files should be saved.
-      def download_translations(pot_file_path=nil)
-        @translations_from_onesky = []
+      def save_translations(path=nil)
+        download_translations unless @translations_from_onesky
         
-        if defined? Rails
-          Dir.glob("#{po_dir_path}/**/*.pot").each do |file_path|
-            @translations_from_onesky += parse_project_output(file_path)
-          end
-        else
-          raise ArgumentError, "Please supply the .pot file path." unless pot_file_path
-          @translations_from_onesky += parse_project_output(pot_file_path)
-        end
+        update_translation_files_from_onesky(po_dir_path(path), @translations_from_onesky)
       end
 
-      def save_translations(pot_file_path=nil)
-        download_translations(pot_file_path) unless @translations_from_onesky
-        
-        update_translation_files(pot_file_path, @translations)
-      end
+
 
       protected
       
@@ -122,66 +97,48 @@ module GetText
         end
       end
       
-      def po_dir_path
+      def po_dir_path(path)
         if defined? Rails
           path ||= [Rails.root.to_s, "po"].join("/")
         else
-          raise ArgumentError, "Please supply the po directory path where locale files are to be downloaded." unless path
+          raise ArgumentError, "Please supply the po directory path where locale files are to be downloaded." unless path && File.directory?(path)
           path = path.chop if path =~ /\/$/
         end
         
         path
       end
       
-      # TODO either use the provided pot to find available translation from ONESKY
-      # TODO use the page parameter from ONESKY response to locate .pot and language folders
-      def parse_project_output(pot_file_path)
-        page_name = File.basename(pot_file_path).gsub(/.pot$/, '.po')
-        output = @project.output(:page => page_name)
-                
-        # Let's ignore other hash nodes from the API and just rely on the string keys we sent during upload. Prefix with locale.
-        result = Hash.new{ |h,k| h[k] = Hash.new(&h.default_proc) }
-
-        # 
-        # output.map do |k0,v0| # Page level
-        #   v0.map do |k1, v1| # Locale level
-        #     v1.map do |k2, v2| # string key level
-        #       result[k0][k1][k2] = v2 
-        #     end
-        #   end 
-        # end
-        
-        []
-      end
-      
-      def update_translation_files(pot_file_path, translations)
+      def update_translation_files_from_onesky(po_dir_path, translations)
         # Delete all existing one_sky translation files before downloading a new set.
         File.delete(*Dir.glob("#{po_dir_path}/**/*.po_from_one_sky"))
         
         # Process each locale and save to file
-        translations.map { |k,v|
-          parent_dir = "#{po_dir_path}/#{k}"
+        translations.each_pair do |text_domain, values|
+          file_name = text_domain.gsub(/\.po$/, '')
+          pot_file_path = [po_dir_path, file_name + ".pot"].join('/')
           
-          Dir.mkdir(parent_dir) unless File.exists?(parent_dir)
-          save_locale(pot_file_path, "#{parent_dir}/#{page_name}.po_from_one_sky", k, v)
-        }
+          values.each_pair do |lang_code, translated_phrases|
+            language_dir = "#{po_dir_path}/#{lang_code}"
+            Dir.mkdir(language_dir) unless File.exists?(language_dir)
+            po_from_one_sky_file = "#{language_dir}/#{file_name}.po_from_one_sky"
+            
+            save_locale(pot_file_path, po_from_one_sky_file, lang_code, translated_phrases)
+          end
+        end
       end
 
-      def save_locale(pot_file_path, po_filename, lang_code, new_phrases)
-        original_phrases = parse_phrase_file(pot_file_path)
-        new_phrases.each do |key, value|
-          original_phrases[key] = value
-          original_phrases.set_comment(key, "")
-        end
-        original_phrases.set_comment(:last, "# END")
+      def save_locale(pot_file_path, po_file_name, lang_code, new_phrases)
+        my_po_parser = GetText::OneSky::MyPoParser.new
+        updated_phrases = my_po_parser.from_onesky_format(pot_file_path, new_phrases)
+        updated_phrases.set_comment(:last, "# END")
         
         lang = @one_sky_languages.find { |e| e["locale"] == lang_code }
 
-        File.open(po_filename, 'w') do |f|
+        File.open(po_file_name, 'w') do |f|
           f.print onesky_header(lang)
-          f.print original_phrases.generate_po
+          f.print updated_phrases.generate_po
         end
-        po_filename
+        po_file_name
       end
       
       def onesky_header(lang)
@@ -203,7 +160,7 @@ module GetText
         end
 
         parser = GetText::OneSky::MyPoParser.new
-        parser.parse_po_file(path)        
+        parser.parse_po_file(path)
       end
       
       def parse_phrase_file(path=nil, lang_code=nil)
